@@ -6,6 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import Lasso
 from sklearn.feature_selection import SelectFromModel
+from sklearn.preprocessing import PolynomialFeatures
 
 
 def remove_features(df: pd.DataFrame, features: list):
@@ -36,8 +37,15 @@ def feature_selection(df_x: pd.DataFrame, df_y: pd.DataFrame):
     return df_x.loc[:, [not i for i in params]].columns
 
 
-def feature_combination():
-    pass
+def feature_combination(df: pd.DataFrame, degree=2):
+    poly = PolynomialFeatures(degree)
+
+    p = poly.fit(df)
+    new_df = pd.DataFrame(p.transform(
+        df), columns=p.get_feature_names(df.columns))
+    new_df = new_df.drop(columns="1")
+
+    return new_df
 
 
 def remove_atypical_values():
@@ -74,7 +82,17 @@ def main(df: pd.DataFrame, options: list):
 
         data_options["remove_invalid_correlated_features"] = True
     if options["feature_combination"]:
-        pass
+        print("Combining features")
+
+        df_x = df.drop(columns=["Stage", "Discharge"])
+        df_y = df[["Stage", "Discharge"]]
+
+        degree = 2
+        df_x = feature_combination(df_x, degree)
+
+        df = pd.concat([df_y, df_x], axis=1)
+
+        data_options["feature_combination"] = "degree 2 polynomial"
     if options["remove_atypical_values"]:
         pass
     if options["remove_feature_selection"]:
@@ -107,7 +125,7 @@ if __name__ == "__main__":
         df_PlatteRiver, ['Filename', 'Agency', 'SiteNumber', 'TimeZone', 'CalcTimestamp', 'width', 'height'])
 
     df_PlatteRiver = main(df_PlatteRiver, {'generic_features': False,
-                                           'remove_atypical_values': False, 'feature_combination': False, 'remove_feature_selection': True, 'remove_time_features': True, 'remove_invalid_correlated_features': False})
+                                           'remove_atypical_values': False, 'feature_combination': True, 'remove_feature_selection': False, 'remove_time_features': True, 'remove_invalid_correlated_features': False})
 
     df_PlatteRiver.to_csv(
         "dataset_clean/PlatteRiverWeir_features_v1_clean.csv", index=False)

@@ -2,6 +2,8 @@
 
 ## General Info
 
+Dataset is not big data, because we have a small amount of data and we are not continuously receiving data.
+
 ### Size
 
 There are 42059 observations and 59 features
