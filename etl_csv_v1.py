@@ -25,7 +25,7 @@ def feature_selection(df_x: pd.DataFrame, df_y: pd.DataFrame):
     feature_selection = SelectFromModel(GridSearchCV(pipeline,
                                                      {'clf__alpha': np.arange(
                                                          0.1, 10, 0.1)},
-                                                     cv=5, scoring="neg_mean_squared_error", verbose=0, n_jobs=6), importance_getter='best_estimator_.named_steps.clf.coef_')
+                                                     cv=5, scoring="neg_mean_squared_error", verbose=3, n_jobs=6), importance_getter='best_estimator_.named_steps.clf.coef_')
 
     feature_selection.fit(X_train, y_train)
 
@@ -42,7 +42,7 @@ def feature_combination(df: pd.DataFrame, degree=2):
 
     p = poly.fit(df)
     new_df = pd.DataFrame(p.transform(
-        df), columns=p.get_feature_names(df.columns))
+        df), columns=p.get_feature_names_out())
     new_df = new_df.drop(columns="1")
 
     return new_df
@@ -124,8 +124,13 @@ if __name__ == "__main__":
     df_PlatteRiver = remove_features(
         df_PlatteRiver, ['Filename', 'Agency', 'SiteNumber', 'TimeZone', 'CalcTimestamp', 'width', 'height'])
 
-    df_PlatteRiver = main(df_PlatteRiver, {'generic_features': False,
-                                           'remove_atypical_values': False, 'feature_combination': True, 'remove_feature_selection': False, 'remove_time_features': True, 'remove_invalid_correlated_features': False})
+    df_PlatteRiver = main(df_PlatteRiver, {
+        'remove_time_features': True,
+        'generic_features': True,
+        'remove_atypical_values': False,
+        'feature_combination': True,
+        'remove_feature_selection': False,
+        'remove_invalid_correlated_features': False})
 
     df_PlatteRiver.to_csv(
         "dataset_clean/PlatteRiverWeir_features_v1_clean.csv", index=False)
