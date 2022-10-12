@@ -2,3 +2,5 @@ report.html
 *.ipynb_checkpoints
 *.DS_Store
 dataset_clean/*.csv
+dataset/images
+dataset/images_tmp
