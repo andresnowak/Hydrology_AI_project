@@ -5,3 +5,4 @@ dataset_clean/*.csv
 dataset/images
 dataset/images_tmp
 models/logs
+models/model_weights
