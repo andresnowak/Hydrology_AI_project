@@ -4,5 +4,6 @@ report.html
 dataset_clean/*.csv
 dataset/images
 dataset/images_tmp
+dataset/images_tmp_augmented
 models/logs
 models/model_weights
