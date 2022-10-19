@@ -34,7 +34,7 @@ def image_augmentation(files, seed=None):
 
     for file in files:
         image = Image.open(f"{os.getcwd()}/{path}/{file}")
-        image = random_image_augmentation(image, transforms, 0.7)
+        image = random_image_augmentation(image, transforms, 0.8)
 
         image.save(f"{os.getcwd()}/{new_path_aug}/{file}")
 
