@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import Lasso
@@ -22,10 +22,10 @@ def feature_selection(df_x: pd.DataFrame, df_y: pd.DataFrame):
         ('clf', Lasso(tol=1e-2, max_iter=5000))
     ])
 
-    feature_selection = SelectFromModel(GridSearchCV(pipeline,
-                                                     {'clf__alpha': np.arange(
-                                                         0.1, 10, 0.1)},
-                                                     cv=5, scoring="neg_mean_squared_error", verbose=3, n_jobs=6), importance_getter='best_estimator_.named_steps.clf.coef_')
+    feature_selection = SelectFromModel(RandomizedSearchCV(pipeline,
+                                                           {'clf__alpha': np.arange(
+                                                               0.0001, 0.01, 0.0001)},
+                                                           cv=5, scoring="neg_mean_squared_error", verbose=3, n_jobs=8, n_iter=20), importance_getter='best_estimator_.named_steps.clf.coef_')
 
     feature_selection.fit(X_train, y_train)
 
@@ -100,7 +100,7 @@ def main(df: pd.DataFrame, options: list):
 
         df_y = df[["Stage", "Discharge"]]
         df_x = df.drop(
-            columns=["Stage", "Discharge"])
+            columns=["Stage", "Discharge", "CaptureTime", "SensorTime"])
 
         columns_remove = feature_selection(df_x, df_y)
 
@@ -122,13 +122,13 @@ if __name__ == "__main__":
 
     # remove the non necessary features
     df_PlatteRiver = remove_features(
-        df_PlatteRiver, ['Filename', 'Agency', 'SiteNumber', 'TimeZone', 'CalcTimestamp', 'width', 'height'])
+        df_PlatteRiver, ['Filename', 'Agency', 'SiteNumber', 'TimeZone', 'CalcTimestamp', 'width', 'height', "exposure", "fNumber",	"isoSpeed", "shutterSpeed"])
 
     df_PlatteRiver = main(df_PlatteRiver, {
-        'remove_time_features': True,
+        'remove_time_features': False,
         'generic_features': True,
         'remove_atypical_values': False,
-        'feature_combination': True,
+        'feature_combination': False,
         'remove_feature_selection': False,
         'remove_invalid_correlated_features': False})
 
