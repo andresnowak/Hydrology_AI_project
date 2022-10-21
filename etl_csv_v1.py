@@ -127,7 +127,7 @@ if __name__ == "__main__":
 
     df_PlatteRiver = main(df_PlatteRiver, {
         'remove_time_features': False,
-        'generic_features': True,
+        'generic_features': False,
         'remove_atypical_values': False,
         'feature_combination': False,
         'remove_feature_selection': False,
