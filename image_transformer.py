@@ -1,12 +1,13 @@
 import os
 import numpy as np
 import shutil
-from PIL import Image
+from PIL import Image, ImageDraw
 
 
 path = r"dataset/images"
 new_path = r"dataset/images_tmp"
 new_path_aug = r"dataset/images_tmp_augmented"
+new_path_draw = r"dataset/images_tmp_draw"
 file_list = os.listdir(path)
 
 files_tmp = np.random.choice(file_list, size=20000)
@@ -41,10 +42,22 @@ def image_augmentation(files, seed=None):
     print("finished")
 
 
+def image_painting(files):
+    for file in files:
+        image = Image.open(f"{os.getcwd()}/{path}/{file}")
+        draw = ImageDraw.Draw(image)
+
+        draw.polygon([(0, 0), (0, 200), (512, 150), (512, 0)], fill=(0, 0, 0)) # upper part
+        draw.polygon([(249, 512), (512, 512), (512, 229), (426, 232), (422, 403)], fill=(0, 0, 0)) # bottom part
+
+        image.save(f"{os.getcwd()}/{new_path_draw}/{file}")
+
+
 def copy(files):
     for file in files:
         shutil.copy(f"{os.getcwd()}/{path}/{file}",
                     f"{os.getcwd()}/{new_path}/{file}")
 
 
-image_augmentation(file_list, seed=10)
+#image_augmentation(file_list, seed=10)
+image_painting(file_list)

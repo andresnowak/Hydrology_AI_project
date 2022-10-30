@@ -1,9 +1,11 @@
 report.html
 *.ipynb_checkpoints
 *.DS_Store
+*__pycache__
 dataset_clean/*.csv
 dataset/images
 dataset/images_tmp
 dataset/images_tmp_augmented
+dataset/images_tmp_draw
 models/logs
 models/model_weights
