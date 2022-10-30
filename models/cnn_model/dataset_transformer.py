@@ -19,21 +19,22 @@ def make_dataset(path, batch_size, img_size, frames, df, seed=None, years=False,
     def parse_image(filename):
         image = tf.io.read_file(filename)
         image = tf.image.decode_jpeg(image, channels=3)
-        image = tf.image.rgb_to_grayscale(image)
-        image = tf.image.grayscale_to_rgb(image)
+        #image = tf.image.rgb_to_grayscale(image)
+        #image = tf.image.grayscale_to_rgb(image)
         #image = tf.image.resize(image, [img_size, img_size])
 
-        image = tf.cast(image, tf.float32) / 255
+        image = tf.cast(image, tf.float32)
+        image = image / 255
 
         return image
 
     def configure_for_performance(ds):
         if not years:
             ds = ds.shuffle(buffer_size=100)
-        ds = ds.batch(batch_size)
-        ds = ds.repeat()
         ds = ds.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
         #ds = ds.prefetch(buffer_size=10)
+        ds = ds.batch(batch_size)
+        ds = ds.repeat()
         return ds
 
     train_files = []
