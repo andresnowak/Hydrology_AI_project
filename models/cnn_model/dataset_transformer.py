@@ -19,9 +19,9 @@ def make_dataset(path, batch_size, img_size, frames, df, seed=None, years=False,
     def parse_image(filename):
         image = tf.io.read_file(filename)
         image = tf.image.decode_jpeg(image, channels=3)
-        #image = tf.image.rgb_to_grayscale(image)
-        #image = tf.image.grayscale_to_rgb(image)
-        #image = tf.image.resize(image, [img_size, img_size])
+        image = tf.image.rgb_to_grayscale(image)
+        image = tf.image.grayscale_to_rgb(image)
+        image = tf.image.resize(image, [img_size, img_size])
 
         image = tf.cast(image, tf.float32)
         image = image / 255
@@ -29,8 +29,8 @@ def make_dataset(path, batch_size, img_size, frames, df, seed=None, years=False,
         return image
 
     def configure_for_performance(ds):
-        if not years:
-            ds = ds.shuffle(buffer_size=100)
+        # Shuffle dataset every time, even if its divided by years
+        ds = ds.shuffle(buffer_size=100)
         ds = ds.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
         #ds = ds.prefetch(buffer_size=10)
         ds = ds.batch(batch_size)
@@ -44,14 +44,21 @@ def make_dataset(path, batch_size, img_size, frames, df, seed=None, years=False,
     if years:
         files = df[(df.Year >= 2012) & (df.Year <= 2016)].Filename.values
         train_files = [os.path.join(path, file) for file in files]
-        print(len(train_files))
 
         files = df[(df.Year >= 2017) & (df.Year <= 2017)].Filename.values
         val_files = [os.path.join(path, file) for file in files]
-        print(len(val_files))
 
         files = df[(df.Year >= 2018) & (df.Year <= 2019)].Filename.values
         test_files = [os.path.join(path, file) for file in files]
+
+        # if the data is passed in order, the model just can't understand the problem so we use shuffle. Maybe because the model just can't go down the gradient because it gets confused, because the data being passed goes up then down then up then down, so it doesn't know what to do
+        if model != "cnn/lstm":
+            np.random.shuffle(train_files)
+            np.random.shuffle(val_files)
+            np.random.shuffle(val_files)
+
+        print(len(train_files))
+        print(len(val_files))
         print(len(test_files))
     else:
         # we have to grab the filename values from the dataframe
@@ -108,6 +115,25 @@ def make_dataset(path, batch_size, img_size, frames, df, seed=None, years=False,
             i - frames, i) if j < len(val_files)] for i in range(frames, val_len)]
         test_files = [[test_files[j] for j in range(
             i - frames, i) if j < len(test_files)] for i in range(frames, test_len)]
+
+        # shuffle lists
+        temp = zip(stage_discharge_train_values, train_files)
+        np.random.shuffle(temp)
+        stage_discharge_train_values, train_files = zip(*temp)
+        stage_discharge_train_values, train_files = list(
+            stage_discharge_train_values), list(train_files)
+
+        temp = zip(stage_discharge_val_values, val_files)
+        np.random.shuffle(temp)
+        stage_discharge_val_values, val_files = zip(*temp)
+        stage_discharge_val_values, val_files = list(
+            stage_discharge_val_values), list(val_files)
+
+        temp = zip(stage_discharge_test_values, test_files)
+        np.random.shuffle(temp)
+        stage_discharge_test_values, test_files = zip(*temp)
+        stage_discharge_test_values, test_files = list(
+            stage_discharge_test_values), list(test_files)
 
     # create images dataset (train, val, test)
     images_train_ds = []
