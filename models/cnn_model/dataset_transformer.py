@@ -100,36 +100,39 @@ def make_dataset(path, batch_size, img_size, frames, df, seed=None, years=False,
         train_len = len(train_files)
         val_len = len(val_files)
         test_len = len(test_files)
+
+        frames_lstm = frames - 1 # we reduce frames by 1 because we count from 0
+
         # prepare dataset for a cnn/lstm model (4 dimensions)
         stage_discharge_train_values = [
-            [stage_discharge_train_values[i]] for i in range(frames, train_len)]
+            [stage_discharge_train_values[i]] for i in range(frames_lstm, train_len)]
         stage_discharge_val_values = [
-            [stage_discharge_val_values[i]] for i in range(frames, val_len)]
+            [stage_discharge_val_values[i]] for i in range(frames_lstm, val_len)]
         stage_discharge_test_values = [
-            [stage_discharge_test_values[i]] for i in range(frames, test_len)]
+            [stage_discharge_test_values[i]] for i in range(frames_lstm, test_len)]
 
         # prepare files for a cnn/lstm model (4 dimensions)
         train_files = [[train_files[j] for j in range(
-            i - frames, i) if j < len(train_files)] for i in range(frames, train_len)]
+            i - frames_lstm, i + 1) if j < len(train_files)] for i in range(frames_lstm, train_len)]
         val_files = [[val_files[j] for j in range(
-            i - frames, i) if j < len(val_files)] for i in range(frames, val_len)]
+            i - frames_lstm, i + 1) if j < len(val_files)] for i in range(frames_lstm, val_len)]
         test_files = [[test_files[j] for j in range(
-            i - frames, i) if j < len(test_files)] for i in range(frames, test_len)]
+            i - frames_lstm, i + 1) if j < len(test_files)] for i in range(frames_lstm, test_len)]
 
         # shuffle lists
-        temp = zip(stage_discharge_train_values, train_files)
+        temp = list(zip(stage_discharge_train_values, train_files))
         np.random.shuffle(temp)
         stage_discharge_train_values, train_files = zip(*temp)
         stage_discharge_train_values, train_files = list(
             stage_discharge_train_values), list(train_files)
 
-        temp = zip(stage_discharge_val_values, val_files)
+        temp = list(zip(stage_discharge_val_values, val_files))
         np.random.shuffle(temp)
         stage_discharge_val_values, val_files = zip(*temp)
         stage_discharge_val_values, val_files = list(
             stage_discharge_val_values), list(val_files)
 
-        temp = zip(stage_discharge_test_values, test_files)
+        temp = list(zip(stage_discharge_test_values, test_files))
         np.random.shuffle(temp)
         stage_discharge_test_values, test_files = zip(*temp)
         stage_discharge_test_values, test_files = list(
