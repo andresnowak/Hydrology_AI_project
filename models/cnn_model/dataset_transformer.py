@@ -30,7 +30,7 @@ def make_dataset(path, batch_size, img_size, frames, df, seed=None, years=False,
 
     def configure_for_performance(ds):
         # Shuffle dataset every time, even if its divided by years
-        ds = ds.shuffle(buffer_size=100)
+        ds = ds.shuffle(buffer_size=800)
         ds = ds.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
         #ds = ds.prefetch(buffer_size=10)
         ds = ds.batch(batch_size)
@@ -101,7 +101,7 @@ def make_dataset(path, batch_size, img_size, frames, df, seed=None, years=False,
         val_len = len(val_files)
         test_len = len(test_files)
 
-        frames_lstm = frames - 1 # we reduce frames by 1 because we count from 0
+        frames_lstm = frames - 1  # we reduce frames by 1 because we count from 0
 
         # prepare dataset for a cnn/lstm model (4 dimensions)
         stage_discharge_train_values = [
