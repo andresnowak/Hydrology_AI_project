@@ -19,8 +19,8 @@ def make_dataset(path, batch_size, img_size, frames, df, seed=None, years=False,
     def parse_image(filename):
         image = tf.io.read_file(filename)
         image = tf.image.decode_jpeg(image, channels=3)
-        image = tf.image.rgb_to_grayscale(image)
-        image = tf.image.grayscale_to_rgb(image)
+        #image = tf.image.rgb_to_grayscale(image)
+        #image = tf.image.grayscale_to_rgb(image)
         image = tf.image.resize(image, [img_size, img_size])
 
         image = tf.cast(image, tf.float32)
@@ -89,12 +89,17 @@ def make_dataset(path, batch_size, img_size, frames, df, seed=None, years=False,
         '/')[-1]].Discharge.values for file in test_files]
 
     # join stage and discharge values
+    """
     stage_discharge_train_values = [[np.squeeze(s), np.squeeze(
         d)] for s, d in zip(stage_train_values, discharge_train_values)]
     stage_discharge_val_values = [[np.squeeze(s), np.squeeze(
         d)] for s, d in zip(stage_val_values, discharge_val_values)]
     stage_discharge_test_values = [[np.squeeze(s), np.squeeze(
-        d)] for s, d in zip(stage_test_values, discharge_test_values)]
+        d)] for s, d in zip(stage_test_values, discharge_test_values)]"""
+        
+    stage_discharge_train_values = [[np.squeeze(s)] for s in discharge_train_values]
+    stage_discharge_val_values = [[np.squeeze(s)] for s in discharge_val_values]
+    stage_discharge_test_values = [[np.squeeze(s)] for s in discharge_test_values]
 
     if model == "cnn/lstm":
         train_len = len(train_files)
