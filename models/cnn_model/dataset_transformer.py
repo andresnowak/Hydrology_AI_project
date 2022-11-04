@@ -30,7 +30,7 @@ def make_dataset(path, batch_size, img_size, frames, df, seed=None, years=False,
 
     def configure_for_performance(ds):
         # Shuffle dataset every time, even if its divided by years
-        #ds = ds.shuffle(buffer_size=800)
+        ds = ds.shuffle(buffer_size=100)
         ds = ds.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
         #ds = ds.prefetch(buffer_size=10)
         ds = ds.batch(batch_size)

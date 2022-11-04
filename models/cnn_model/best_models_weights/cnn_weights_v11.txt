@@ -1,2 +1,0 @@
-dataset=40000 images
-In the images the forest and sky was drawn with black, the images were gray and the dataset was divided by years and each dataset (train, val, test) was shuffled

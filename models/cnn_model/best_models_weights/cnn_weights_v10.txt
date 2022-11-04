@@ -1,2 +1,0 @@
-dataset=40000 images
-images were not augmented
