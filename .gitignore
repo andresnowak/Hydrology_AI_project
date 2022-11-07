@@ -10,4 +10,5 @@ dataset/images_tmp_draw
 dataset/images_tmp_draw_sky
 models/logs
 models/model_weights
+MLPtf
 models/cnn_model/best_models_weights/model_weights/cnn_best_weights_v12.hdf5
