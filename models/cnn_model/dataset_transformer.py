@@ -206,7 +206,7 @@ def make_dataset_with_time(path, batch_size, img_size, frames, df, seed=None, ye
         #image = tf.image.rgb_to_grayscale(image)
         #image = tf.image.grayscale_to_rgb(image)
         image = tf.image.resize(image, [img_size, img_size])
-        
+
         time = float(time)
         time = tf.cast(time, tf.float32)
         new_channel = tf.fill([img_size, img_size, 1], time)
@@ -231,16 +231,22 @@ def make_dataset_with_time(path, batch_size, img_size, frames, df, seed=None, ye
 
     if years:
         files = df[(df.Year >= 2012) & (df.Year <= 2016)].Filename.values
-        time = df[(df.Year >= 2012) & (df.Year <= 2016)].SensorTime.dt.month.values
-        train_files = [(os.path.join(path, file), str(time)) for file, time in zip(files, time)]
+        time = df[(df.Year >= 2012) & (df.Year <= 2016)
+                  ].SensorTime.dt.month.values
+        train_files = [(os.path.join(path, file), str(time))
+                       for file, time in zip(files, time)]
 
         files = df[(df.Year >= 2017) & (df.Year <= 2017)].Filename.values
-        time = df[(df.Year >= 2017) & (df.Year <= 2017)].SensorTime.dt.month.values
-        val_files = [(os.path.join(path, file), str(time)) for file, time in zip(files, time)]
+        time = df[(df.Year >= 2017) & (df.Year <= 2017)
+                  ].SensorTime.dt.month.values
+        val_files = [(os.path.join(path, file), str(time))
+                     for file, time in zip(files, time)]
 
         files = df[(df.Year >= 2018) & (df.Year <= 2019)].Filename.values
-        time = df[(df.Year >= 2018) & (df.Year <= 2019)].SensorTime.dt.month.values
-        test_files = [(os.path.join(path, file), str(time)) for file, time in zip(files, time)]
+        time = df[(df.Year >= 2018) & (df.Year <= 2019)
+                  ].SensorTime.dt.month.values
+        test_files = [(os.path.join(path, file), str(time))
+                      for file, time in zip(files, time)]
 
         # if the data is passed in order, the model just can't understand the problem so we use shuffle. Maybe because the model just can't go down the gradient because it gets confused, because the data being passed goes up then down then up then down, so it doesn't know what to do
         if model != "cnn/lstm":
@@ -354,9 +360,12 @@ def make_dataset_with_time(path, batch_size, img_size, frames, df, seed=None, ye
         filenames_val_ds = tf.data.Dataset.from_tensor_slices(val_files)
         filenames_test_ds = tf.data.Dataset.from_tensor_slices(test_files)
 
-        images_train_ds = filenames_train_ds.map(lambda x: parse_image(x[0], x[1]), num_parallel_calls=8)
-        images_val_ds = filenames_val_ds.map(lambda x: parse_image(x[0], x[1]), num_parallel_calls=8)
-        images_test_ds = filenames_test_ds.map(lambda x: parse_image(x[0], x[1]), num_parallel_calls=8)
+        images_train_ds = filenames_train_ds.map(
+            lambda x: parse_image(x[0], x[1]), num_parallel_calls=8)
+        images_val_ds = filenames_val_ds.map(
+            lambda x: parse_image(x[0], x[1]), num_parallel_calls=8)
+        images_test_ds = filenames_test_ds.map(
+            lambda x: parse_image(x[0], x[1]), num_parallel_calls=8)
 
     # create stage and discharge dataset (train, val, test)
     stage_discharge_train_ds = tf.data.Dataset.from_tensor_slices(
@@ -375,6 +384,7 @@ def make_dataset_with_time(path, batch_size, img_size, frames, df, seed=None, ye
     test_ds = configure_for_performance(test_ds)
 
     return train_ds, len(train_files), val_ds, len(val_files), test_ds, len(test_files)
+
 
 def make_dataset_and_time(path, batch_size, img_size, frames, df, seed=None, years=False, model="cnn"):
     np.random.seed(seed)
@@ -395,8 +405,8 @@ def make_dataset_and_time(path, batch_size, img_size, frames, df, seed=None, yea
         #image = tf.image.grayscale_to_rgb(image)
         image = tf.image.resize(image, [img_size, img_size])
 
-        image = tf.cast(image, tf.float32)
-        image = image / 255
+        #image = tf.cast(image, tf.float32)
+        #image = image / 255
 
         return image
 
@@ -415,17 +425,20 @@ def make_dataset_and_time(path, batch_size, img_size, frames, df, seed=None, yea
 
     if years:
         files = df[(df.Year >= 2012) & (df.Year <= 2016)].Filename.values
-        train_time = df[(df.Year >= 2012) & (df.Year <= 2016)].SensorTime.dt.month.values
+        train_time = df[(df.Year >= 2012) & (df.Year <= 2016)
+                        ].SensorTime.dt.month.values
         train_time = [[time] for time in train_time]
         train_files = [os.path.join(path, file) for file in files]
 
         files = df[(df.Year >= 2017) & (df.Year <= 2017)].Filename.values
-        val_time = df[(df.Year >= 2017) & (df.Year <= 2017)].SensorTime.dt.month.values
+        val_time = df[(df.Year >= 2017) & (df.Year <= 2017)
+                      ].SensorTime.dt.month.values
         val_time = [[time] for time in val_time]
         val_files = [os.path.join(path, file) for file in files]
 
         files = df[(df.Year >= 2018) & (df.Year <= 2019)].Filename.values
-        test_time = df[(df.Year >= 2012) & (df.Year <= 2016)].SensorTime.dt.month.values
+        test_time = df[(df.Year >= 2012) & (df.Year <= 2016)
+                       ].SensorTime.dt.month.values
         test_time = [[time] for time in test_time]
         test_files = [os.path.join(path, file) for file in files]
 
@@ -440,7 +453,7 @@ def make_dataset_and_time(path, batch_size, img_size, frames, df, seed=None, yea
             np.random.shuffle(temp)
             val_files, val_time = zip(*temp)
             val_files, val_time = list(val_files), list(val_time)
-            
+
             temp = list(zip(test_files, test_time))
             np.random.shuffle(temp)
             test_files, test_time = zip(*temp)
@@ -575,11 +588,14 @@ def make_dataset_and_time(path, batch_size, img_size, frames, df, seed=None, yea
     #time_test_ds = configure_for_performance(time_test_ds)
 
     # create tensorflow dataset of images and values (train, val, test)
-    train_ds = tf.data.Dataset.zip(((images_train_ds, time_train_ds), stage_discharge_train_ds))
+    train_ds = tf.data.Dataset.zip(
+        ((images_train_ds, time_train_ds), stage_discharge_train_ds))
     train_ds = configure_for_performance(train_ds)
-    val_ds = tf.data.Dataset.zip(((images_val_ds, time_val_ds), stage_discharge_val_ds))
+    val_ds = tf.data.Dataset.zip(
+        ((images_val_ds, time_val_ds), stage_discharge_val_ds))
     val_ds = configure_for_performance(val_ds)
-    test_ds = tf.data.Dataset.zip(((images_test_ds, time_test_ds), stage_discharge_test_ds))
+    test_ds = tf.data.Dataset.zip(
+        ((images_test_ds, time_test_ds), stage_discharge_test_ds))
     test_ds = configure_for_performance(test_ds)
 
     return train_ds, len(train_files), val_ds, len(val_files), test_ds, len(test_files)

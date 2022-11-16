@@ -12,3 +12,4 @@ models/logs
 models/model_weights
 MLPtf
 models/cnn_model/best_models_weights/model_weights/cnn_best_weights_v12.hdf5
+models/cnn_model/model_weights/seg_model_resnet_50_1.hdf5
