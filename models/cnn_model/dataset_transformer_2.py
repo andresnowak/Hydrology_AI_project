@@ -49,19 +49,33 @@ class Dataset:
 
     CLASSES = [0, 1]
 
+    np.random.seed(0)
+
     def __init__(
             self,
             images_dir,
-            masks_dir,
+            df,
             classes=None,
             augmentation=None,
             preprocessing=None,
     ):
-        self.ids = os.listdir(images_dir)
-        self.images_fps = [str(i) for i in glob(images_dir + '/*')]
-        self.masks_fps = [str(i) for i in glob(masks_dir + '/*')]
-        self.images_fps.sort()
-        self.masks_fps.sort()
+        #self.ids = os.listdir(images_dir)
+
+        np.random.shuffle(df)
+
+        stage_values = df.Stage.values
+        stage_values = [[stage] for stage in stage_values]
+
+        discharge_values = df.Discharge.values
+        discharge_values = [[discharge] for discharge in discharge_values]
+
+        self.stage_discharge_values = list(zip(stage_values, discharge_values))
+
+        time_values = df.SensorTime.dt.month.values
+        self.time_values = [[time] for time in time_values]
+
+        self.files = df.Filename.values
+        self.images_fps = [os.path.join(images_dir, file) for file in files]
 
         # convert str names to class values on masks
         self.class_values = classes
@@ -74,11 +88,10 @@ class Dataset:
         # read data
         image = cv2.imread(self.images_fps[i])
         image = cv2.resize(image, (320, 320), interpolation=cv2.INTER_AREA)
-        mask = cv2.imread(self.masks_fps[i])
-        mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-        mask = cv2.resize(mask, (320, 320), interpolation=cv2.INTER_AREA)
-        mask = np.expand_dims(mask, axis=-1)
-        mask = mask.astype('float')
+
+        stage_discharge_val = self.stage_discharge_values[i]
+
+        time_val = self.time_values[i]
 
         # extract certain classes from mask (e.g. cars)
         #masks = [(mask == v) for v in self.class_values]
@@ -86,18 +99,18 @@ class Dataset:
 
         # apply augmentations
         if self.augmentation:
-            sample = self.augmentation(image=image, mask=mask)
-            image, mask = sample['image'], sample['mask']
+            sample = self.augmentation(image=image)
+            image = sample['image']
 
         # apply preprocessing
         if self.preprocessing:
-            sample = self.preprocessing(image=image, mask=mask)
-            image, mask = sample['image'], sample['mask']
+            sample = self.preprocessing(image=image)
+            image = sample['image']
 
-        return image, mask
+        return zip(image, time_val), stage_discharge_val
 
     def __len__(self):
-        return len(self.ids)
+        return len(self.files)
 
 
 class Dataloder(keras.utils.Sequence):
@@ -108,6 +121,8 @@ class Dataloder(keras.utils.Sequence):
         batch_size: Integet number of images in batch.
         shuffle: Boolean, if `True` shuffle image indexes each epoch.
     """
+
+    np.random.seed(0)
 
     def __init__(self, dataset, batch_size=1, shuffle=False):
         self.dataset = dataset
