@@ -40,9 +40,9 @@ class Dataset:
         images_dir (str): path to images folder
         masks_dir (str): path to segmentation masks folder
         class_values (list): values of classes to extract from segmentation mask
-        augmentation (albumentations.Compose): data transfromation pipeline 
+        augmentation (albumentations.Compose): data transfromation pipeline
             (e.g. flip, scale, etc.)
-        preprocessing (albumentations.Compose): data preprocessing 
+        preprocessing (albumentations.Compose): data preprocessing
             (e.g. noralization, shape manipulation, etc.)
 
     """
@@ -59,23 +59,25 @@ class Dataset:
             augmentation=None,
             preprocessing=None,
     ):
-        #self.ids = os.listdir(images_dir)
+        # self.ids = os.listdir(images_dir)
 
-        np.random.shuffle(df)
+        df = df.iloc[np.random.permutation(len(df))]
 
-        stage_values = df.Stage.values
+        stage_values = df["Stage"].values
         stage_values = [[stage] for stage in stage_values]
 
-        discharge_values = df.Discharge.values
+        discharge_values = df["Discharge"].values
         discharge_values = [[discharge] for discharge in discharge_values]
 
-        self.stage_discharge_values = list(zip(stage_values, discharge_values))
+        #self.stage_discharge_values = list(zip(stage_values, discharge_values))
+        self.stage_discharge_values = discharge_values
 
-        time_values = df.SensorTime.dt.month.values
+        time_values = df["SensorTime"].dt.month.values
         self.time_values = [[time] for time in time_values]
 
         self.files = df.Filename.values
-        self.images_fps = [os.path.join(images_dir, file) for file in files]
+        self.images_fps = [os.path.join(images_dir, file)
+                           for file in self.files]
 
         # convert str names to class values on masks
         self.class_values = classes
@@ -94,8 +96,8 @@ class Dataset:
         time_val = self.time_values[i]
 
         # extract certain classes from mask (e.g. cars)
-        #masks = [(mask == v) for v in self.class_values]
-        #mask = np.stack(masks, axis=-1).astype('float')
+        # masks = [(mask == v) for v in self.class_values]
+        # mask = np.stack(masks, axis=-1).astype('float')
 
         # apply augmentations
         if self.augmentation:
@@ -107,13 +109,13 @@ class Dataset:
             sample = self.preprocessing(image=image)
             image = sample['image']
 
-        return zip(image, time_val), stage_discharge_val
+        return image, time_val, stage_discharge_val
 
     def __len__(self):
         return len(self.files)
 
 
-class Dataloder(keras.utils.Sequence):
+class Dataloader(keras.utils.Sequence):
     """Load data from dataset and form batches
 
     Args:
@@ -137,14 +139,22 @@ class Dataloder(keras.utils.Sequence):
         # collect batch data
         start = i * self.batch_size
         stop = (i + 1) * self.batch_size
-        data = []
+
+        input_1 = []
+        input_2 = []
+        output = []
+
         for j in range(start, stop):
-            data.append(self.dataset[j])
+            # print(self.dataset[j])
+            # data.append(self.dataset[j])
+            input_1.append(self.dataset[j][0])
+            input_2.append(self.dataset[j][1])
+            output.append(self.dataset[j][2])
 
-        # transpose list of lists
-        batch = [np.stack(samples, axis=0) for samples in zip(*data)]
+        print(np.array(input_1).shape)
+        print(np.array(input_2).shape)
 
-        return batch
+        return [input_1, input_2], output
 
     def __len__(self):
         """Denotes the number of batches per epoch"""
