@@ -151,10 +151,10 @@ class Dataloader(keras.utils.Sequence):
             input_2.append(self.dataset[j][1])
             output.append(self.dataset[j][2])
 
-        print(np.array(input_1).shape)
-        print(np.array(input_2).shape)
+        # print(np.array(input_1).shape)
+        # print(np.array(input_2).shape)
 
-        return [input_1, input_2], output
+        return {"input_1": np.array(input_1), "input_2": np.array(input_2)}, np.array(output)
 
     def __len__(self):
         """Denotes the number of batches per epoch"""
