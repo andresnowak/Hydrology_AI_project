@@ -73,7 +73,8 @@ class Dataset:
         self.stage_discharge_values = discharge_values
 
         time_values = df["SensorTime"].dt.month.values
-        self.time_values = [[time] for time in time_values]
+        area_values = df["RiverArea"].values
+        self.area_time_values = [[area, time] for area, time in zip(area_values, time_values)]
 
         self.files = df.Filename.values
         self.images_fps = [os.path.join(images_dir, file)
@@ -93,7 +94,7 @@ class Dataset:
 
         stage_discharge_val = self.stage_discharge_values[i]
 
-        time_val = self.time_values[i]
+        area_time_val = self.area_time_values[i]
 
         # extract certain classes from mask (e.g. cars)
         # masks = [(mask == v) for v in self.class_values]
@@ -109,7 +110,7 @@ class Dataset:
             sample = self.preprocessing(image=image)
             image = sample['image']
 
-        return image, time_val, stage_discharge_val
+        return image, area_time_val, stage_discharge_val
 
     def __len__(self):
         return len(self.files)
