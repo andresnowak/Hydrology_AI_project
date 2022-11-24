@@ -1,4 +1,3 @@
-from pickle import FALSE
 import pandas as pd
 import numpy as np
 
@@ -127,7 +126,7 @@ if __name__ == "__main__":
 
     df_PlatteRiver = main(df_PlatteRiver, {
         'remove_time_features': False,
-        'generic_features': False,
+        'generic_features': True,
         'remove_atypical_values': False,
         'feature_combination': False,
         'remove_feature_selection': False,
