@@ -20,3 +20,5 @@ models/cnn_model/model_weights/seg_model_seresnetx50_1.hdf5
 models/cnn_model/model_weights/seg_model_seresnetx50_2.hdf5
 models/cnn_model/model_weights/seg_model_seresnetx50_3.hdf5
 models/cnn_model/model_weights/seg_model_seresnetx101_1.hdf5
+models/cnn_model/model_weights
+models/cnn_model/logs
