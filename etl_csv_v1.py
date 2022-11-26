@@ -129,7 +129,7 @@ if __name__ == "__main__":
         'generic_features': True,
         'remove_atypical_values': False,
         'feature_combination': False,
-        'remove_feature_selection': False,
+        'remove_feature_selection': True,
         'remove_invalid_correlated_features': False})
 
     df_PlatteRiver.to_csv(
