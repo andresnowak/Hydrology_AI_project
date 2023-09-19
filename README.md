@@ -1,1 +1,3 @@
 # Hydrology_AI_project
+
+[Paper](Camera_based_Water_Stage_and_Discharge_Prediction_with_Machine_Learning_paper.pdf)
